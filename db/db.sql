@@ -78,22 +78,6 @@ CREATE UNLOGGED TABLE forum_users
 );
 
 
--- CREATE FUNCTION create_forum() RETURNS TRIGGER AS
--- $$
--- BEGIN
---     INSERT INTO "forum_users" ("nickname", "forum")
---     VALUES ((SELECT "id" FROM "users" WHERE NEW.user = nickname), (SELECT "id" FROM "forums" WHERE NEW.slug = slug));
---     return new;
--- END
--- $$ LANGUAGE plpgsql;
---
--- CREATE TRIGGER "create_forum"
---     BEFORE INSERT
---     ON "forums"
---     FOR EACH ROW
--- EXECUTE PROCEDURE create_forum();
-
-
 CREATE FUNCTION create_post() RETURNS TRIGGER AS
 $$
 BEGIN
