@@ -18,9 +18,6 @@ func (userRepo *Repository) GetUserByNickname(nickname string) (models.User, err
 
 	err := userRepo.Database.QueryRow(`SELECT nickname, fullname, about, email FROM users WHERE nickname = $1;`, nickname).
 		Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
-	if err != nil && err.Error() == ("no rows in result set") {
-		err = nil
-	}
 	if err != nil {
 		return models.User{}, err
 	}

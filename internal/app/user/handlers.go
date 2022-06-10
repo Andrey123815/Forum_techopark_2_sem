@@ -64,16 +64,15 @@ func (h *Handlers) GetUserProfile(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) UpdateUserProfile(ctx *fasthttp.RequestCtx) {
 	nickname := ctx.UserValue("nickname").(string)
+	userByNickname, _ := h.UserRepo.GetUserByNickname(nickname)
+	if userByNickname.Nickname == "" {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find user by nickname: "+nickname, ctx)
+		return
+	}
 
 	userNewSettings := models.User{}
 	err := json.Unmarshal(ctx.PostBody(), &userNewSettings)
 	if handleInternalServerError(err, ctx) == true {
-		return
-	}
-
-	userByNickname, _ := h.UserRepo.GetUserByNickname(nickname)
-	if userByNickname.Nickname == "" {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find user by nickname: "+nickname, ctx)
 		return
 	}
 
