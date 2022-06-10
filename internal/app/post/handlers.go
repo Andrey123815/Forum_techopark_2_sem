@@ -9,7 +9,6 @@ import (
 	"db-forum/internal/parse"
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
-	"fmt"
 	"github.com/valyala/fasthttp"
 	"log"
 	"strings"
@@ -26,7 +25,6 @@ type Handlers struct {
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 	if err != nil {
-		fmt.Println(err)
 		responseDelivery.SendInternalServerError(ctx)
 		return true
 	}

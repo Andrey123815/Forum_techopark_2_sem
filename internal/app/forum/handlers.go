@@ -7,7 +7,6 @@ import (
 	"db-forum/internal/parse"
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
-	"fmt"
 	"github.com/valyala/fasthttp"
 	"log"
 )
@@ -21,7 +20,6 @@ type Handlers struct {
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 	if err != nil {
-		fmt.Println(err)
 		responseDelivery.SendInternalServerError(ctx)
 		return true
 	}
@@ -102,7 +100,6 @@ func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 	createdThread, err := h.ForumRepo.CreateNewThread(newThread.Title, newThread.Author,
 		newThread.Forum, newThread.Message, newThread.Slug, newThread.Created)
 	if err != nil {
-		fmt.Println(err)
 		responseDelivery.SendInternalServerError(ctx)
 		return
 	}
@@ -150,7 +147,6 @@ func (h *Handlers) GetForumUsers(ctx *fasthttp.RequestCtx) {
 
 	users, err := h.ForumRepo.GetForumUsers(forum.Id, limit, sortDirection, since)
 	if err != nil {
-		fmt.Println(err)
 		responseDelivery.SendInternalServerError(ctx)
 		return
 	}

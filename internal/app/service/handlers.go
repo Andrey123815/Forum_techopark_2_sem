@@ -6,7 +6,6 @@ import (
 	"db-forum/internal/app/thread/threadRepo"
 	"db-forum/internal/app/user/userRepo"
 	"db-forum/internal/responseDelivery"
-	"fmt"
 	"github.com/valyala/fasthttp"
 	"log"
 )
@@ -22,7 +21,6 @@ type Handlers struct {
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 	if err != nil {
-		fmt.Println(err)
 		responseDelivery.SendInternalServerError(ctx)
 		return true
 	}

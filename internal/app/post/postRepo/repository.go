@@ -2,7 +2,6 @@ package postRepo
 
 import (
 	"db-forum/internal/app/models"
-	"fmt"
 	"github.com/jackc/pgx"
 )
 
@@ -41,12 +40,10 @@ func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) 
 
 			case "forum":
 				var forum models.Forum
-				fmt.Println(postInfo.Id)
 				err := repository.Database.QueryRow(`SELECT id,title,"user",slug,posts,threads
 								FROM forums WHERE slug = (SELECT forum FROM posts WHERE id = $1);`, postInfo.Id).
 					Scan(&forum.Id, &forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
 				if err != nil {
-					fmt.Println(err)
 					return postDetails, err
 				}
 				postDetails["forum"] = forum

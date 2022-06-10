@@ -153,7 +153,6 @@ func (repository *Repository) CreateNewPosts(newPosts []models.Post, thread mode
 
 	result, err := repository.Database.Query(query, insertionData...)
 	if err != nil {
-		fmt.Println("THIRD")
 		return []models.Post{}, err
 	}
 
@@ -172,7 +171,6 @@ func (repository *Repository) CreateNewPosts(newPosts []models.Post, thread mode
 			&singlePost.Thread, &singlePost.Created,
 		)
 		if err != nil {
-			fmt.Println("FIRTH")
 			return []models.Post{}, err
 		}
 
@@ -238,7 +236,6 @@ func (repository *Repository) GetThreadPosts(id int64, limit, since, sortType, s
 
 	result, err := repository.Database.Query(query, id)
 	if err != nil {
-		fmt.Println("query error", err)
 		return []models.Post{}, err
 	}
 	defer result.Close()

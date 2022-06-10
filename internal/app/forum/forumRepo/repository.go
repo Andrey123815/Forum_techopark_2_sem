@@ -99,7 +99,6 @@ func (repository *Repository) GetThreadsBySlug(forumSlug string, limit string, d
 
 	result, err := repository.Database.Query(query, forumSlug)
 	if err != nil {
-		fmt.Println(err)
 		return threads, err
 	}
 
