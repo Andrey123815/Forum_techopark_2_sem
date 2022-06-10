@@ -8,14 +8,11 @@ import (
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
 	"github.com/valyala/fasthttp"
-	"log"
 )
 
 type Handlers struct {
 	ForumRepo forumRepo.ForumRepository
 	UserRepo  userRepo.UserRepository
-	InfoLog   *log.Logger
-	ErrorLog  *log.Logger
 }
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {

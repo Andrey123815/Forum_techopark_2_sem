@@ -18,7 +18,6 @@ import (
 	"github.com/spf13/viper"
 	"github.com/valyala/fasthttp"
 	"log"
-	"os"
 )
 
 type ServerConfig struct {
@@ -79,47 +78,30 @@ func main() {
 		log.Fatalln(errorDBConfParse)
 	}
 
-	fileSuccessLog, err := os.OpenFile("../info.log", os.O_RDWR|os.O_CREATE, 0666)
-	InfoLog := log.New(fileSuccessLog, "INFO\t", log.Ldate|log.Ltime)
-	fileErrorLog, err := os.OpenFile("../error.log", os.O_RDWR|os.O_CREATE, 0666)
-	ErrorLog := log.New(fileErrorLog, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	//fileSuccessLog, err := os.OpenFile("../info.log", os.O_RDWR|os.O_CREATE, 0666)
+	//InfoLog := log.New(fileSuccessLog, "INFO\t", log.Ldate|log.Ltime)
+	//fileErrorLog, err := os.OpenFile("../error.log", os.O_RDWR|os.O_CREATE, 0666)
+	//ErrorLog := log.New(fileErrorLog, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	db := getPostgres(appConfiguration.Database)
 
 	r := router.New()
 	user.SetUserRouting(r, &user.Handlers{
 		UserRepo: userRepo.CreateUserRepository(db),
-		InfoLog:  InfoLog,
-		ErrorLog: ErrorLog,
 	})
 	forum.SetForumRouting(r, &forum.Handlers{
 		ForumRepo: forumRepo.CreateForumRepository(db),
 		UserRepo:  userRepo.CreateUserRepository(db),
-		InfoLog:   InfoLog,
-		ErrorLog:  ErrorLog,
 	})
 	thread.SetThreadRouting(r, &thread.Handlers{
 		ThreadRepo: threadRepo.CreateThreadRepository(db),
-		ForumRepo:  forumRepo.CreateForumRepository(db),
 		UserRepo:   userRepo.CreateUserRepository(db),
-		InfoLog:    InfoLog,
-		ErrorLog:   ErrorLog,
 	})
 	post.SetPostRouting(r, &post.Handlers{
-		PostRepo:   postRepo.CreatePostRepository(db),
-		ThreadRepo: threadRepo.CreateThreadRepository(db),
-		ForumRepo:  forumRepo.CreateForumRepository(db),
-		UserRepo:   userRepo.CreateUserRepository(db),
-		InfoLog:    InfoLog,
-		ErrorLog:   ErrorLog,
+		PostRepo: postRepo.CreatePostRepository(db),
 	})
 	service.SetServiceRouting(r, &service.Handlers{
 		ServiceRepo: serviceRepo.CreateServiceRepository(db),
-		ThreadRepo:  threadRepo.CreateThreadRepository(db),
-		ForumRepo:   forumRepo.CreateForumRepository(db),
-		UserRepo:    userRepo.CreateUserRepository(db),
-		InfoLog:     InfoLog,
-		ErrorLog:    ErrorLog,
 	})
 
 	fmt.Println("\nServer successfully started at localhost:" + appConfiguration.Server.Port + "!")

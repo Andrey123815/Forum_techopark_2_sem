@@ -1,7 +1,6 @@
 package thread
 
 import (
-	"db-forum/internal/app/forum/forumRepo"
 	"db-forum/internal/app/models"
 	"db-forum/internal/app/thread/threadRepo"
 	"db-forum/internal/app/user/userRepo"
@@ -11,15 +10,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/valyala/fasthttp"
-	"log"
 )
 
 type Handlers struct {
 	ThreadRepo threadRepo.ThreadRepository
-	ForumRepo  forumRepo.ForumRepository
 	UserRepo   userRepo.UserRepository
-	InfoLog    *log.Logger
-	ErrorLog   *log.Logger
 }
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {

@@ -6,13 +6,10 @@ import (
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
 	"github.com/valyala/fasthttp"
-	"log"
 )
 
 type Handlers struct {
 	UserRepo userRepo.UserRepository
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
 }
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
@@ -43,7 +40,6 @@ func (h *Handlers) CreateNewUser(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	h.InfoLog.Println("creation..")
 	userDetails, err := h.UserRepo.CreateNewUser(nickname, newUser.Fullname, newUser.About, newUser.Email)
 
 	if handleInternalServerError(err, ctx) == true {

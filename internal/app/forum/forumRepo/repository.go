@@ -11,8 +11,6 @@ type Repository struct {
 	Database *pgx.ConnPool
 }
 
-const EMPTY_PARAMETER = -1
-
 func CreateForumRepository(db *pgx.ConnPool) *Repository {
 	return &Repository{Database: db}
 }

@@ -1,26 +1,17 @@
 package post
 
 import (
-	"db-forum/internal/app/forum/forumRepo"
 	"db-forum/internal/app/models"
 	"db-forum/internal/app/post/postRepo"
-	"db-forum/internal/app/thread/threadRepo"
-	"db-forum/internal/app/user/userRepo"
 	"db-forum/internal/parse"
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
 	"github.com/valyala/fasthttp"
-	"log"
 	"strings"
 )
 
 type Handlers struct {
-	PostRepo   postRepo.PostRepository
-	ThreadRepo threadRepo.ThreadRepository
-	ForumRepo  forumRepo.ForumRepository
-	UserRepo   userRepo.UserRepository
-	InfoLog    *log.Logger
-	ErrorLog   *log.Logger
+	PostRepo postRepo.PostRepository
 }
 
 func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
