@@ -7,9 +7,20 @@
 
 # Test binary, built with `go test -c`
 *.test
+**/technopark-dbms-forum
+**/tech-db-forum.dat.gz
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+.idea/
+
+# Reports
+**/report.html
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+go.sum
+
+# Logs
+**/info.log
+**/error.log
