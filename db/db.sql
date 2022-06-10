@@ -15,6 +15,14 @@ DROP FUNCTION IF EXISTS create_thread();
 DROP TRIGGER IF EXISTS "create_thread" ON "threads";
 
 
+DROP INDEX IF EXISTS idx_user_nickname;
+DROP INDEX IF EXISTS idx_threads_slug;
+DROP INDEX IF EXISTS idx_votes_user_thread;
+DROP INDEX IF EXISTS idx_posts_thread_id;
+DROP INDEX IF EXISTS idx_forums_slug;
+DROP INDEX IF EXISTS idx_posts_thread;
+
+
 CREATE UNLOGGED TABLE IF NOT EXISTS "users"
 (
     "id"       BIGSERIAL                  NOT NULL PRIMARY KEY,
@@ -113,3 +121,10 @@ CREATE TRIGGER "create_thread"
     ON "threads"
     FOR EACH ROW
 EXECUTE PROCEDURE create_thread();
+
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_nickname ON users ("nickname");
+CREATE INDEX IF NOT EXISTS idx_threads_slug ON threads ("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_votes_user_thread ON votes ("user", "thread");
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_thread_id ON posts ("thread", "id");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_forums_slug ON forums ("slug");

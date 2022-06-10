@@ -193,7 +193,7 @@ func (repository *Repository) VoteThread(nickname string, threadID int64, voice 
 
 	if err != nil {
 		oldTread.Votes += voice
-		err := repository.Database.QueryRow(`INSERT INTO votes("user", thread, voice) VALUES($1, $2, $3)
+		err := repository.Database.QueryRow(`INSERT INTO votes ("user", thread, voice) VALUES ($1, $2, $3)
 		RETURNING "user", voice;`, nickname, threadID, voice).
 			Scan(&vote.Nickname, &vote.Voice)
 		if err != nil {
