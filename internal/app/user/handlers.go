@@ -76,17 +76,10 @@ func (h *Handlers) UpdateUserProfile(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	if userNewSettings.Nickname == "" && userNewSettings.About == "" && userNewSettings.Email == "" && userNewSettings.Fullname == "" {
-		responseDelivery.SendResponse(fasthttp.StatusOK, userByNickname, ctx)
+	userByEmail, err := h.UserRepo.GetUserByEmail(userNewSettings.Email)
+	if userByEmail.Email != "" {
+		responseDelivery.SendError(fasthttp.StatusConflict, "This email is already registered by user: "+userByEmail.Nickname, ctx)
 		return
-	}
-
-	if userNewSettings.Email != "" {
-		userByEmail, err := h.UserRepo.GetUserByEmail(userNewSettings.Email)
-		if err != nil || userByEmail.Email != "" {
-			responseDelivery.SendError(fasthttp.StatusConflict, "This email is already registered by user: "+userByEmail.Nickname, ctx)
-			return
-		}
 	}
 
 	userWithNewSettings, err := h.UserRepo.UpdateUserProfile(nickname,
