@@ -9,8 +9,6 @@ DROP TABLE IF EXISTS "votes" CASCADE;
 DROP TABLE IF EXISTS "forum_users" CASCADE;
 
 
-DROP FUNCTION IF EXISTS create_forum();
-DROP TRIGGER IF EXISTS "create_forum" ON "forums";
 DROP FUNCTION IF EXISTS create_post();
 DROP TRIGGER IF EXISTS "create_post" ON "posts";
 DROP FUNCTION IF EXISTS create_thread();
