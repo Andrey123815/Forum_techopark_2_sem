@@ -21,7 +21,7 @@ const EMPTY_PARAMETER = -1
 const POST_PARAMS = `id, parent, author, message, "isEdited", forum, thread, created`
 const THREAD_PARAMS = `id, title, author, forum, message, votes, slug, created`
 
-func generateFlatSortQuery(limit int32, since int64, sortDirection string) string {
+func generateFlatSortQuery(limit, since, sortDirection string) string {
 	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1`, POST_PARAMS)
 
 	comp := "<"
@@ -29,15 +29,15 @@ func generateFlatSortQuery(limit int32, since int64, sortDirection string) strin
 		comp = ">"
 	}
 
-	if since != EMPTY_PARAMETER {
-		query += fmt.Sprintf(` AND id %s %d`, comp, since)
+	if since != "" {
+		query += fmt.Sprintf(` AND id %s %s`, comp, since)
 	}
-	query += fmt.Sprintf(" ORDER BY created %s, id %s LIMIT %d;", sortDirection, sortDirection, limit)
+	query += fmt.Sprintf(" ORDER BY created %s, id %s LIMIT %s;", sortDirection, sortDirection, limit)
 
 	return query
 }
 
-func generateTreeSortQuery(limit int32, since int64, sortDirection string) string {
+func generateTreeSortQuery(limit, since, sortDirection string) string {
 	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1`, POST_PARAMS)
 
 	comp := "<"
@@ -45,15 +45,15 @@ func generateTreeSortQuery(limit int32, since int64, sortDirection string) strin
 		comp = ">"
 	}
 
-	if since != EMPTY_PARAMETER {
-		query += fmt.Sprintf(` AND path %s (SELECT path FROM posts WHERE id = %d) `, comp, since)
+	if since != "" {
+		query += fmt.Sprintf(` AND path %s (SELECT path FROM posts WHERE id = %s) `, comp, since)
 	}
-	query += fmt.Sprintf(` ORDER BY path[1] %s, path %s LIMIT %d;`, sortDirection, sortDirection, limit)
+	query += fmt.Sprintf(` ORDER BY path[1] %s, path %s LIMIT %s;`, sortDirection, sortDirection, limit)
 
 	return query
 }
 
-func generateParentTreeSortQuery(limit int32, since int64, sortDirection string) string {
+func generateParentTreeSortQuery(limit string, since string, sortDirection string) string {
 	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1 AND path &&
 				(SELECT ARRAY (SELECT id FROM posts WHERE thread = $1 AND parent = 0 `, POST_PARAMS)
 
@@ -62,10 +62,10 @@ func generateParentTreeSortQuery(limit int32, since int64, sortDirection string)
 		comp = ">"
 	}
 
-	if since != EMPTY_PARAMETER {
-		query += fmt.Sprintf(`AND path %s (SELECT path[1:1] FROM posts WHERE id = %d LIMIT 1) `, comp, since)
+	if since != "" {
+		query += fmt.Sprintf(`AND path %s (SELECT path[1:1] FROM posts WHERE id = %s LIMIT 1) `, comp, since)
 	}
-	query += fmt.Sprintf(`ORDER BY path[1] %s, path LIMIT %d)) ORDER BY path[1] %s, path;`, sortDirection, limit, sortDirection)
+	query += fmt.Sprintf(`ORDER BY path[1] %s, path LIMIT %s)) ORDER BY path[1] %s, path;`, sortDirection, limit, sortDirection)
 
 	return query
 }
@@ -222,7 +222,7 @@ func (repository *Repository) VoteThread(nickname string, threadID int64, voice 
 	return err
 }
 
-func (repository *Repository) GetThreadPosts(id int64, limit int32, since int64, sortType string, sortDirection string) ([]models.Post, error) {
+func (repository *Repository) GetThreadPosts(id int64, limit, since, sortType, sortDirection string) ([]models.Post, error) {
 	posts := make([]models.Post, 0)
 
 	var query string

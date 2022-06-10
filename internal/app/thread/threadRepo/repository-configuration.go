@@ -11,6 +11,6 @@ type ThreadRepository interface {
 
 	CreateNewPosts(newPosts []models.Post, thread models.Thread) ([]models.Post, error)
 	VoteThread(nickname string, threadID int64, voice int32, oldTread *models.Thread) error
-	GetThreadPosts(id int64, limit int32, since int64, sortType string, sortDirection string) ([]models.Post, error)
+	GetThreadPosts(id int64, limit, since, sortType, sortDirection string) ([]models.Post, error)
 	UpdateThreadDetails(threadID int64, title, message string) (models.Thread, error)
 }

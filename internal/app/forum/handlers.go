@@ -112,7 +112,7 @@ func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetThreads(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
-	limit, err := parse.IntGetParameter("limit", ctx)
+	limit := parse.StringGetParameter("limit", ctx)
 	desc, err := parse.BoolGetParameter("desc", ctx)
 	since := string(ctx.QueryArgs().Peek("since"))
 
@@ -133,7 +133,7 @@ func (h *Handlers) GetThreads(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetForumUsers(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
-	limit, err := parse.IntGetParameter("limit", ctx)
+	limit := parse.StringGetParameter("limit", ctx)
 	desc, err := parse.BoolGetParameter("desc", ctx)
 	since := string(ctx.QueryArgs().Peek("since"))
 

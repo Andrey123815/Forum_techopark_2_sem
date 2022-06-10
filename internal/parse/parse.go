@@ -5,19 +5,6 @@ import (
 	"strconv"
 )
 
-func IntGetParameter(paramName string, ctx *fasthttp.RequestCtx) (int, error) {
-	param := string(ctx.QueryArgs().Peek(paramName))
-	if param == "" {
-		return -1, nil
-	}
-	parsedValue, err := strconv.Atoi(param)
-	if err != nil {
-		return -1, err
-	}
-
-	return parsedValue, nil
-}
-
 func BoolGetParameter(paramName string, ctx *fasthttp.RequestCtx) (bool, error) {
 	param := string(ctx.QueryArgs().Peek(paramName))
 	if param == "" {
@@ -36,10 +23,10 @@ func StringGetParameter(paramName string, ctx *fasthttp.RequestCtx) string {
 	return param
 }
 
-func IntSlugParameter(paramName string, ctx *fasthttp.RequestCtx) (int, error) {
+func Int64SlugParameter(paramName string, ctx *fasthttp.RequestCtx) (int64, error) {
 	param := ctx.UserValue(paramName).(string)
 
-	parsedValue, err := strconv.Atoi(param)
+	parsedValue, err := strconv.ParseInt(param, 10, 64)
 
 	if err != nil {
 		return -1, err

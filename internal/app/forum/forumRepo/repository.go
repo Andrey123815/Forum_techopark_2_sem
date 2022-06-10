@@ -73,7 +73,7 @@ func (repository *Repository) GetAlreadyExistThread(slug string) (models.Thread,
 	return existThread, nil
 }
 
-func (repository *Repository) GetThreadsBySlug(forumSlug string, limit int, desc bool, since string) ([]models.Thread, error) {
+func (repository *Repository) GetThreadsBySlug(forumSlug string, limit string, desc bool, since string) ([]models.Thread, error) {
 	threads := make([]models.Thread, 0, 0)
 
 	query := `SELECT * FROM threads WHERE forum = $1`
@@ -91,8 +91,8 @@ func (repository *Repository) GetThreadsBySlug(forumSlug string, limit int, desc
 		sortDirection = "DESC"
 	}
 
-	if limit > 0 {
-		query += fmt.Sprintf(` ORDER BY created %s LIMIT %d;`, sortDirection, limit)
+	if limit != "" {
+		query += fmt.Sprintf(` ORDER BY created %s LIMIT %s;`, sortDirection, limit)
 	} else {
 		query += fmt.Sprintf(` ORDER BY created %s;`, sortDirection)
 	}
@@ -131,7 +131,7 @@ func (repository *Repository) GetThreadsBySlug(forumSlug string, limit int, desc
 	return threads, nil
 }
 
-func (repository *Repository) GetForumUsers(forumID int64, limit int, sortDirection string, since string) ([]models.User, error) {
+func (repository *Repository) GetForumUsers(forumID int64, limit string, sortDirection string, since string) ([]models.User, error) {
 	users := make([]models.User, 0)
 
 	query := `SELECT "nickname", "about", "email", "fullname" FROM "users"
@@ -144,10 +144,10 @@ func (repository *Repository) GetForumUsers(forumID int64, limit int, sortDirect
 		query += fmt.Sprintf(` AND "nickname" %s '%s'`, sign, since)
 	}
 
-	if limit == EMPTY_PARAMETER {
-		limit = 1000
+	if limit == "" {
+		limit = "1000"
 	}
-	query += fmt.Sprintf(` ORDER BY "nickname" %s LIMIT %d;`, sortDirection, limit)
+	query += fmt.Sprintf(` ORDER BY "nickname" %s LIMIT %s;`, sortDirection, limit)
 
 	result, err := repository.Database.Query(query, forumID)
 

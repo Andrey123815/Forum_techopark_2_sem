@@ -35,11 +35,11 @@ func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 }
 
 func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
-	postID, _ := parse.IntSlugParameter("id", ctx)
+	postID, _ := parse.Int64SlugParameter("id", ctx)
 	relatedOneString := string(ctx.QueryArgs().Peek("related"))
 	related := strings.Split(relatedOneString, ",")
 
-	postDetails, _ := h.PostRepo.GetPostDetails(int64(postID), related)
+	postDetails, _ := h.PostRepo.GetPostDetails(postID, related)
 	if postDetails["post"].(models.Post).Author == "" {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum", ctx)
 		return
@@ -49,7 +49,7 @@ func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *Handlers) ChangePostMessage(ctx *fasthttp.RequestCtx) {
-	postID, _ := parse.IntSlugParameter("id", ctx)
+	postID, _ := parse.Int64SlugParameter("id", ctx)
 
 	newPost := models.Post{}
 	err := json.Unmarshal(ctx.PostBody(), &newPost)
@@ -58,14 +58,14 @@ func (h *Handlers) ChangePostMessage(ctx *fasthttp.RequestCtx) {
 	}
 
 	var related []string
-	oldPost, err := h.PostRepo.GetPostDetails(int64(postID), related)
+	oldPost, err := h.PostRepo.GetPostDetails(postID, related)
 
 	if newPost.Message == "" || newPost.Message == oldPost["post"].(models.Post).Message {
 		responseDelivery.SendResponse(fasthttp.StatusOK, oldPost["post"], ctx)
 		return
 	}
 
-	updatedPost, err := h.PostRepo.ChangePostMessage(int64(postID), newPost.Message)
+	updatedPost, err := h.PostRepo.ChangePostMessage(postID, newPost.Message)
 	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find post", ctx)
 		return

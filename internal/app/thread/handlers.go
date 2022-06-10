@@ -110,8 +110,8 @@ func (h *Handlers) GetThreadDetails(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
-	limit, _ := parse.IntGetParameter("limit", ctx)
-	since, _ := parse.IntGetParameter("since", ctx)
+	limit := parse.StringGetParameter("limit", ctx)
+	since := parse.StringGetParameter("since", ctx)
 	sortType := parse.StringGetParameter("sort", ctx)
 	desc, _ := parse.BoolGetParameter("desc", ctx)
 
@@ -130,7 +130,7 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	posts, err := h.ThreadRepo.GetThreadPosts(thread.Id, int32(limit), int64(since), sortType, sortDirection)
+	posts, err := h.ThreadRepo.GetThreadPosts(thread.Id, limit, since, sortType, sortDirection)
 
 	responseDelivery.SendResponse(fasthttp.StatusOK, posts, ctx)
 }
