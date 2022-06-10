@@ -34,14 +34,14 @@ func (h *Handlers) CreateNewPosts(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	searchedThread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
-	if searchedThread.Title == "" {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find post thread by id", ctx)
+	if len(newPosts) == 0 {
+		responseDelivery.SendResponse(fasthttp.StatusCreated, newPosts, ctx)
 		return
 	}
 
-	if len(newPosts) == 0 {
-		responseDelivery.SendResponse(fasthttp.StatusCreated, newPosts, ctx)
+	searchedThread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
+	if searchedThread.Title == "" {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find post thread by id", ctx)
 		return
 	}
 
