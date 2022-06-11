@@ -18,8 +18,11 @@ func CreatePostRepository(db *pgx.ConnPool) *Repository {
 func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) (map[string]interface{}, error) {
 	var postInfo models.Post
 
-	_ = repository.Database.QueryRow(`SELECT id,author,message,"isEdited",forum,thread,created FROM posts WHERE id = $1;`, postID).
+	err := repository.Database.QueryRow(`SELECT id,author,message,"isEdited",forum,thread,created FROM posts WHERE id = $1;`, postID).
 		Scan(&postInfo.Id, &postInfo.Author, &postInfo.Message, &postInfo.IsEdited, &postInfo.Forum, &postInfo.Thread, &postInfo.Created)
+	if err != nil {
+		return map[string]interface{}{}, err
+	}
 
 	postDetails := map[string]interface{}{
 		"post": postInfo,
@@ -31,7 +34,7 @@ func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) 
 			switch related {
 			case "user":
 				var user models.User
-				err := repository.Database.QueryRow(`SELECT nickname,fullname,about,email FROM users WHERE nickname = $1;`, postInfo.Author).
+				err = repository.Database.QueryRow(`SELECT nickname,fullname,about,email FROM users WHERE nickname = $1;`, postInfo.Author).
 					Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
 				if err != nil {
 					return postDetails, err
@@ -40,7 +43,7 @@ func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) 
 
 			case "forum":
 				var forum models.Forum
-				err := repository.Database.QueryRow(`SELECT id,title,"user",slug,posts,threads
+				err = repository.Database.QueryRow(`SELECT id,title,"user",slug,posts,threads
 								FROM forums WHERE slug = (SELECT forum FROM posts WHERE id = $1);`, postInfo.Id).
 					Scan(&forum.Id, &forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
 				if err != nil {
@@ -50,7 +53,7 @@ func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) 
 
 			case "thread":
 				var thread models.Thread
-				err := repository.Database.QueryRow(`SELECT id, title, author, forum, message, votes, slug, created
+				err = repository.Database.QueryRow(`SELECT id, title, author, forum, message, votes, slug, created
 								FROM threads WHERE id = (SELECT thread FROM posts WHERE id = $1);`, postInfo.Id).
 					Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum,
 						&thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
