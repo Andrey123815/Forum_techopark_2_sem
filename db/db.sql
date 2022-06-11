@@ -15,12 +15,18 @@ DROP FUNCTION IF EXISTS create_thread();
 DROP TRIGGER IF EXISTS "create_thread" ON "threads";
 
 
-DROP INDEX IF EXISTS idx_user_nickname;
-DROP INDEX IF EXISTS idx_threads_slug;
-DROP INDEX IF EXISTS idx_votes_user_thread;
-DROP INDEX IF EXISTS idx_posts_thread_id;
+DROP INDEX IF EXISTS idx_users_nickname;
+DROP INDEX IF EXISTS idx_users_email;
+
 DROP INDEX IF EXISTS idx_forums_slug;
+
+DROP INDEX IF EXISTS idx_threads_slug;
+DROP INDEX IF EXISTS idx_threads_forum;
+
 DROP INDEX IF EXISTS idx_posts_thread;
+DROP INDEX IF EXISTS idx_posts_thread_path;
+
+DROP INDEX IF EXISTS idx_votes_user_thread;
 
 
 CREATE UNLOGGED TABLE IF NOT EXISTS "users"
@@ -123,8 +129,15 @@ CREATE TRIGGER "create_thread"
 EXECUTE PROCEDURE create_thread();
 
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_user_nickname ON users ("nickname");
-CREATE INDEX IF NOT EXISTS idx_threads_slug ON threads ("slug");
-CREATE UNIQUE INDEX IF NOT EXISTS idx_votes_user_thread ON votes ("user", "thread");
--- CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_thread_id ON posts ("thread", "id");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_nickname ON users ("nickname");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users ("email");
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_forums_slug ON forums ("slug");
+
+CREATE INDEX IF NOT EXISTS idx_threads_slug ON threads ("slug");
+CREATE INDEX IF NOT EXISTS idx_threads_forum ON threads ("forum");
+
+CREATE INDEX IF NOT EXISTS idx_posts_thread ON posts ("thread");
+CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_thread_path ON posts ("thread", "path");
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_votes_user_thread ON votes ("user", "thread");
