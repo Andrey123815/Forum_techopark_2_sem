@@ -13,69 +13,56 @@ func CreatePostRepository(db *pgx.ConnPool) *Repository {
 	return &Repository{Database: db}
 }
 
-func (repository *Repository) GetPostDetails(postID int64, relatedArr []string) (map[string]interface{}, error) {
-	var postInfo models.Post
-
-	err := repository.Database.QueryRow(`SELECT id,author,message,"isEdited",forum,thread,created FROM posts WHERE id = $1;`, postID).
-		Scan(&postInfo.Id, &postInfo.Author, &postInfo.Message, &postInfo.IsEdited, &postInfo.Forum, &postInfo.Thread, &postInfo.Created)
+func (r *Repository) GetPostDetails(id int, related []string) (postInfo models.DetailPostInfo, err error) {
+	var post models.Post
+	err = r.Database.QueryRow(`SELECT id, parent, author, message, "isEdited", forum, thread, created FROM posts WHERE id = $1;`, id).
+		Scan(&post.Id, &post.Parent, &post.Author, &post.Message, &post.IsEdited, &post.Forum, &post.Thread, &post.Created)
 	if err != nil {
-		return map[string]interface{}{}, err
+		return
 	}
 
-	postDetails := map[string]interface{}{
-		"post": postInfo,
-	}
+	postInfo.Post = &post
 
-	if len(relatedArr) != 0 {
-		for _, related := range relatedArr {
-
-			switch related {
+	if len(related) != 0 {
+		for _, filter := range related {
+			switch filter {
 			case "user":
 				var user models.User
-				err = repository.Database.QueryRow(`SELECT nickname,fullname,about,email FROM users WHERE nickname = $1;`, postInfo.Author).
+				err = r.Database.QueryRow(`SELECT nickname, fullname, about, email FROM users WHERE nickname = $1;`, post.Author).
 					Scan(&user.Nickname, &user.Fullname, &user.About, &user.Email)
 				if err != nil {
-					return postDetails, err
+					return
 				}
-				postDetails["author"] = user
-
+				postInfo.Author = &user
 			case "forum":
 				var forum models.Forum
-				err = repository.Database.QueryRow(`SELECT id,title,"user",slug,posts,threads
-								FROM forums WHERE slug = (SELECT forum FROM posts WHERE id = $1);`, postInfo.Id).
-					Scan(&forum.Id, &forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
+				err = r.Database.QueryRow(`SELECT title, "user", slug, posts, threads FROM forums WHERE slug = $1;`, post.Forum).
+					Scan(&forum.Title, &forum.User, &forum.Slug, &forum.Posts, &forum.Threads)
 				if err != nil {
-					return postDetails, err
+					return
 				}
-				postDetails["forum"] = forum
-
+				postInfo.Forum = &forum
 			case "thread":
 				var thread models.Thread
-				err = repository.Database.QueryRow(`SELECT id, title, author, forum, message, votes, slug, created
-								FROM threads WHERE id = (SELECT thread FROM posts WHERE id = $1);`, postInfo.Id).
+				err = r.Database.QueryRow(`SELECT id, title, author,forum, message, votes, slug,
+						created FROM threads WHERE id = $1;`, post.Thread).
 					Scan(&thread.Id, &thread.Title, &thread.Author, &thread.Forum,
 						&thread.Message, &thread.Votes, &thread.Slug, &thread.Created)
 				if err != nil {
-					return postDetails, err
+					return
 				}
-				postDetails["thread"] = thread
+				postInfo.Thread = &thread
 			}
 		}
 	}
 
-	return postDetails, nil
+	return
 }
 
-func (repository *Repository) ChangePostMessage(postID int64, message string) (models.Post, error) {
-	var updatedPost models.Post
-
-	err := repository.Database.QueryRow(`UPDATE posts SET message = $1, "isEdited" = $2
-			WHERE id = $3 RETURNING id,author,message,"isEdited",forum,thread,created;`, message, true, postID).
-		Scan(&updatedPost.Id, &updatedPost.Author, &updatedPost.Message, &updatedPost.IsEdited,
-			&updatedPost.Forum, &updatedPost.Thread, &updatedPost.Created)
-	if err != nil {
-		return models.Post{}, err
-	}
-
-	return updatedPost, nil
+func (r *Repository) ChangePostMessage(id int, newPost models.Post) (models.Post, error) {
+	var post models.Post
+	err := r.Database.QueryRow(`UPDATE posts SET message = $1, "isEdited" = true WHERE id = $2
+			RETURNING id, parent, author, message, "isEdited", forum, thread, created;`, newPost.Message, id).
+		Scan(&post.Id, &post.Parent, &post.Author, &post.Message, &post.IsEdited, &post.Forum, &post.Thread, &post.Created)
+	return post, err
 }

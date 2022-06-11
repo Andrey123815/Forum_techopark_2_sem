@@ -7,6 +7,7 @@ import (
 	"db-forum/internal/responseDelivery"
 	"encoding/json"
 	"github.com/valyala/fasthttp"
+	"strconv"
 	"strings"
 )
 
@@ -24,18 +25,19 @@ func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 }
 
 func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
-	postID, err := parse.Int64SlugParameter("id", ctx)
+	stringifyID := ctx.UserValue("id").(string)
+	postID, err := strconv.Atoi(stringifyID)
 	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
-	relatedOneString := parse.StringGetParameter("related", ctx)
-	related := strings.Split(relatedOneString, ",")
+	relatedParamsArr := parse.StringGetParameter("related", ctx)
+	related := strings.Split(relatedParamsArr, ",")
 
 	postDetails, err := h.PostRepo.GetPostDetails(postID, related)
 	if err != nil {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum", ctx)
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
@@ -43,35 +45,38 @@ func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *Handlers) ChangePostMessage(ctx *fasthttp.RequestCtx) {
-	postID, err := parse.Int64SlugParameter("id", ctx)
+	stringifyID := ctx.UserValue("id").(string)
+	postID, err := strconv.Atoi(stringifyID)
 	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
-	var related []string
-	oldPost, err := h.PostRepo.GetPostDetails(postID, related)
-	if err != nil {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
-		return
-	}
-
-	newPost := models.Post{}
+	var newPost models.Post
 	err = json.Unmarshal(ctx.PostBody(), &newPost)
 	if handleInternalServerError(err, ctx) == true {
 		return
 	}
 
-	if newPost.Message == "" || newPost.Message == oldPost["post"].(models.Post).Message {
-		responseDelivery.SendResponse(fasthttp.StatusOK, oldPost["post"], ctx)
+	var related []string
+	DetailPostInfo, err := h.PostRepo.GetPostDetails(postID, related)
+	if err != nil {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
-	updatedPost, err := h.PostRepo.ChangePostMessage(postID, newPost.Message)
+	oldPost := DetailPostInfo.Post
+	if newPost.Message == "" || oldPost.Message == newPost.Message {
+		responseDelivery.SendResponse(fasthttp.StatusOK, oldPost, ctx)
+		return
+	}
+
+	updatedPost, err := h.PostRepo.ChangePostMessage(postID, newPost)
 	if err != nil {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find post", ctx)
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
 	responseDelivery.SendResponse(fasthttp.StatusOK, updatedPost, ctx)
+	return
 }
