@@ -105,6 +105,13 @@ func (h *Handlers) GetThreadDetails(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
+
+	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
+	if err != nil {
+		responseDelivery.SendError(fasthttp.StatusNotFound, fmt.Sprintf("Can't find user with slug #%s\n", slugOrID), ctx)
+		return
+	}
+
 	limit := parse.StringGetParameter("limit", ctx)
 	since := parse.StringGetParameter("since", ctx)
 	sortType := parse.StringGetParameter("sort", ctx)
@@ -117,12 +124,6 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 
 	if sortType == "" {
 		sortType = "flat"
-	}
-
-	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
-	if err != nil {
-		responseDelivery.SendError(fasthttp.StatusNotFound, fmt.Sprintf("Can't find user with slug #%s\n", slugOrID), ctx)
-		return
 	}
 
 	posts, err := h.ThreadRepo.GetThreadPosts(thread.Id, limit, since, sortType, sortDirection)
