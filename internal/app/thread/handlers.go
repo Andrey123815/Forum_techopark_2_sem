@@ -28,15 +28,16 @@ func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 
 func (h *Handlers) CreateNewPosts(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
-	newPosts := make([]models.Post, 0)
-	err := json.Unmarshal(ctx.PostBody(), &newPosts)
-	if handleInternalServerError(err, ctx) == true {
-		return
-	}
 
 	searchedThread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
 	if searchedThread.Title == "" {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find post thread by id", ctx)
+		return
+	}
+
+	newPosts := make([]models.Post, 0)
+	err = json.Unmarshal(ctx.PostBody(), &newPosts)
+	if handleInternalServerError(err, ctx) == true {
 		return
 	}
 
