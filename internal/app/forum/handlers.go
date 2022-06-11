@@ -64,15 +64,16 @@ func (h *Handlers) GetForum(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
-	newThread := models.Thread{}
-	err := json.Unmarshal(ctx.PostBody(), &newThread)
-	if handleInternalServerError(err, ctx) == true {
-		return
-	}
 
 	forumBySlug, err := h.ForumRepo.GetForumBySlug(slug)
 	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum by slug: "+slug, ctx)
+		return
+	}
+
+	newThread := models.Thread{}
+	err = json.Unmarshal(ctx.PostBody(), &newThread)
+	if handleInternalServerError(err, ctx) == true {
 		return
 	}
 
