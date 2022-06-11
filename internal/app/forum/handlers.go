@@ -104,19 +104,15 @@ func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 func (h *Handlers) GetThreads(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
 
-	limit := parse.StringGetParameter("limit", ctx)
-	desc := parse.StringGetParameter("desc", ctx)
-	since := parse.StringGetParameter("since", ctx)
-
-	forum, err := h.ForumRepo.GetForumBySlug(slug)
-	if forum == (models.Forum{}) {
+	_, err := h.ForumRepo.GetForumBySlug(slug)
+	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum with slug: "+slug, ctx)
 		return
 	}
-	if err != nil {
-		responseDelivery.SendInternalServerError(ctx)
-		return
-	}
+
+	limit := parse.StringGetParameter("limit", ctx)
+	desc := parse.StringGetParameter("desc", ctx)
+	since := parse.StringGetParameter("since", ctx)
 
 	threads, err := h.ForumRepo.GetThreadsBySlug(slug, limit, desc, since)
 
