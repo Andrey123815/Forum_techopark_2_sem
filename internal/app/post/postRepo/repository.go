@@ -9,8 +9,6 @@ type Repository struct {
 	Database *pgx.ConnPool
 }
 
-const EMPTY_PARAMETER = -1
-
 func CreatePostRepository(db *pgx.ConnPool) *Repository {
 	return &Repository{Database: db}
 }

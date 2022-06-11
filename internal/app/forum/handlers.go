@@ -54,12 +54,8 @@ func (h *Handlers) GetForum(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
 
 	forumDetails, err := h.ForumRepo.GetForumBySlug(slug)
-	if forumDetails == (models.Forum{}) {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum with slug: "+slug, ctx)
-		return
-	}
 	if err != nil {
-		responseDelivery.SendInternalServerError(ctx)
+		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find forum with slug: "+slug, ctx)
 		return
 	}
 
