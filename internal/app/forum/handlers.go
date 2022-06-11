@@ -43,9 +43,6 @@ func (h *Handlers) CreateNewForum(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	forumDetails, err := h.ForumRepo.CreateNewForum(newForum.Title, userByNickname.Nickname, newForum.Slug)
-	if handleInternalServerError(err, ctx) == true {
-		return
-	}
 
 	responseDelivery.SendResponse(fasthttp.StatusCreated, forumDetails, ctx)
 }
@@ -93,10 +90,6 @@ func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 
 	createdThread, err := h.ForumRepo.CreateNewThread(newThread.Title, newThread.Author,
 		newThread.Forum, newThread.Message, newThread.Slug, newThread.Created)
-	if err != nil {
-		responseDelivery.SendInternalServerError(ctx)
-		return
-	}
 
 	responseDelivery.SendResponse(fasthttp.StatusCreated, createdThread, ctx)
 }

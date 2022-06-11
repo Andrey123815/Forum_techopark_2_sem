@@ -42,10 +42,6 @@ func (h *Handlers) CreateNewUser(ctx *fasthttp.RequestCtx) {
 
 	userDetails, err := h.UserRepo.CreateNewUser(nickname, newUser.Fullname, newUser.About, newUser.Email)
 
-	if handleInternalServerError(err, ctx) == true {
-		return
-	}
-
 	responseDelivery.SendResponse(fasthttp.StatusCreated, userDetails, ctx)
 }
 

@@ -84,10 +84,6 @@ func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 	}
 
 	err = h.ThreadRepo.VoteThread(vote.Nickname, thread.Id, vote.Voice, &thread)
-	if err != nil {
-		responseDelivery.SendInternalServerError(ctx)
-		return
-	}
 
 	responseDelivery.SendResponse(fasthttp.StatusOK, thread, ctx)
 }
