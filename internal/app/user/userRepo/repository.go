@@ -46,8 +46,7 @@ func (userRepo *Repository) CheckUserExists(nickname, email string) ([]models.Us
 	userWithSameNickname, err := userRepo.GetUserByNickname(nickname)
 	if err != nil {
 		userWithSameNickname = models.User{}
-	}
-	if userWithSameNickname.Nickname != "" {
+	} else {
 		users = append(users, userWithSameNickname)
 	}
 

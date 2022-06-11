@@ -66,7 +66,7 @@ func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
 
 	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
-	if thread == (models.Thread{}) {
+	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
@@ -77,8 +77,8 @@ func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	user, err := h.UserRepo.GetUserByNickname(vote.Nickname)
-	if user == (models.User{}) {
+	_, err = h.UserRepo.GetUserByNickname(vote.Nickname)
+	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "user not found", ctx)
 		return
 	}

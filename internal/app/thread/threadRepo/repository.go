@@ -111,10 +111,6 @@ func (repository *Repository) GetThreadIDBySlugOrID(slugOrID string) (int64, err
 }
 
 func (repository *Repository) CreateNewPosts(newPosts []models.Post, thread models.Thread) ([]models.Post, error) {
-	if len(newPosts) == 0 {
-		return []models.Post{}, nil
-	}
-
 	insertQuery := "($%d, $%d, $%d, $%d, $%d, $%d)"
 	query := `INSERT INTO posts (parent, author, message, forum, thread, created) VALUES `
 
