@@ -64,8 +64,14 @@ func (h *Handlers) CreateNewPosts(ctx *fasthttp.RequestCtx) {
 func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
 
+	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
+	if thread == (models.Thread{}) {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
+		return
+	}
+
 	var vote models.Vote
-	err := json.Unmarshal(ctx.PostBody(), &vote)
+	err = json.Unmarshal(ctx.PostBody(), &vote)
 	if handleInternalServerError(err, ctx) == true {
 		return
 	}
@@ -73,12 +79,6 @@ func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 	user, err := h.UserRepo.GetUserByNickname(vote.Nickname)
 	if user == (models.User{}) {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "user not found", ctx)
-		return
-	}
-
-	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
-	if thread == (models.Thread{}) {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
 		return
 	}
 
