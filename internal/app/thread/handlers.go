@@ -83,9 +83,9 @@ func (h *Handlers) VoteThread(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
-	err = h.ThreadRepo.VoteThread(vote.Nickname, thread.Id, vote.Voice, &thread)
+	newThread, err := h.ThreadRepo.VoteThread(vote.Nickname, thread.Id, vote.Voice, thread)
 
-	responseDelivery.SendResponse(fasthttp.StatusOK, thread, ctx)
+	responseDelivery.SendResponse(fasthttp.StatusOK, newThread, ctx)
 }
 
 func (h *Handlers) GetThreadDetails(ctx *fasthttp.RequestCtx) {
@@ -121,6 +121,10 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 
 	if sortType == "" {
 		sortType = "flat"
+	}
+
+	if limit == "" {
+		limit = "100"
 	}
 
 	posts, err := h.ThreadRepo.GetThreadPosts(thread.Id, limit, since, sortType, sortDirection)

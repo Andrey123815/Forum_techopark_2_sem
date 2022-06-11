@@ -17,10 +17,8 @@ func CreateThreadRepository(db *pgx.ConnPool) *Repository {
 	return &Repository{Database: db}
 }
 
-const POST_PARAMS = `id, parent, author, message, "isEdited", forum, thread, created`
-
 func generateFlatSortQuery(limit, since, sortDirection string) string {
-	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1`, POST_PARAMS)
+	query := `SELECT id, parent, author, message, "isEdited", forum, thread, created FROM posts WHERE thread = $1`
 
 	comp := "<"
 	if sortDirection == "ASC" {
@@ -36,7 +34,7 @@ func generateFlatSortQuery(limit, since, sortDirection string) string {
 }
 
 func generateTreeSortQuery(limit, since, sortDirection string) string {
-	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1`, POST_PARAMS)
+	query := `SELECT id, parent, author, message, "isEdited", forum, thread, created FROM posts WHERE thread = $1`
 
 	comp := "<"
 	if sortDirection == "ASC" {
@@ -52,8 +50,9 @@ func generateTreeSortQuery(limit, since, sortDirection string) string {
 }
 
 func generateParentTreeSortQuery(limit string, since string, sortDirection string) string {
+	PostParams := `id, parent, author, message, "isEdited", forum, thread, created`
 	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1 AND path &&
-				(SELECT ARRAY (SELECT id FROM posts WHERE thread = $1 AND parent = 0 `, POST_PARAMS)
+				(SELECT ARRAY (SELECT id FROM posts WHERE thread = $1 AND parent = 0 `, PostParams)
 
 	comp := "<"
 	if sortDirection == "ASC" {
@@ -174,7 +173,7 @@ func (repository *Repository) CreateNewPosts(newPosts []models.Post, thread mode
 	return results, nil
 }
 
-func (repository *Repository) VoteThread(nickname string, threadID int64, voice int32, oldTread *models.Thread) error {
+func (repository *Repository) VoteThread(nickname string, threadID int64, voice int32, oldTread models.Thread) (models.Thread, error) {
 	var (
 		vote     models.Vote
 		user     string
@@ -187,21 +186,21 @@ func (repository *Repository) VoteThread(nickname string, threadID int64, voice 
 
 	if err != nil {
 		oldTread.Votes += voice
-		err := repository.Database.QueryRow(`INSERT INTO votes ("user", thread, voice) VALUES ($1, $2, $3)
+		err = repository.Database.QueryRow(`INSERT INTO votes ("user", thread, voice) VALUES ($1, $2, $3)
 		RETURNING "user", voice;`, nickname, threadID, voice).
 			Scan(&vote.Nickname, &vote.Voice)
 		if err != nil {
-			return err
+			return models.Thread{}, err
 		}
 
 		err = repository.Database.QueryRow(`UPDATE threads SET votes = (votes+$1) WHERE id = $2 RETURNING votes;`,
 			voice, threadID).Scan(&thread)
 
-		return nil
+		return oldTread, nil
 	}
 
 	if voice == oldVoice {
-		return nil
+		return oldTread, nil
 	}
 
 	oldTread.Votes += 2 * voice
@@ -211,7 +210,7 @@ func (repository *Repository) VoteThread(nickname string, threadID int64, voice 
 	err = repository.Database.QueryRow(`UPDATE votes SET voice=$1 WHERE "user" = $2 AND thread = $3 RETURNING "user";`,
 		voice, nickname, threadID).Scan(&user)
 
-	return err
+	return oldTread, err
 }
 
 func (repository *Repository) GetThreadPosts(id int64, limit, since, sortType, sortDirection string) ([]models.Post, error) {
