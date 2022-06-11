@@ -141,3 +141,5 @@ CREATE INDEX IF NOT EXISTS idx_posts_thread ON posts ("thread");
 CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_thread_path ON posts ("thread", "path");
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_votes_user_thread ON votes ("user", "thread");
+
+CREATE INDEX IF NOT EXISTS idx_forum_users_user_forum ON forum_users ("nickname", "forum");
