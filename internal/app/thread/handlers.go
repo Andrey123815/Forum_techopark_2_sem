@@ -138,15 +138,15 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 func (h *Handlers) UpdateThreadDetails(ctx *fasthttp.RequestCtx) {
 	slugOrID := ctx.UserValue("slug_or_id").(string)
 
-	var threadDetails models.Thread
-	err := json.Unmarshal(ctx.PostBody(), &threadDetails)
-	if handleInternalServerError(err, ctx) == true {
-		return
-	}
-
 	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
 	if err != nil {
 		responseDelivery.SendError(fasthttp.StatusNotFound, "can't find user", ctx)
+		return
+	}
+
+	var threadDetails models.Thread
+	err = json.Unmarshal(ctx.PostBody(), &threadDetails)
+	if handleInternalServerError(err, ctx) == true {
 		return
 	}
 

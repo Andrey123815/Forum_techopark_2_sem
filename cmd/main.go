@@ -66,7 +66,7 @@ func getPostgres(config DatabaseConfig) *pgx.ConnPool {
 }
 
 func main() {
-	viper.SetConfigName("./config")
+	viper.SetConfigName("../config")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
