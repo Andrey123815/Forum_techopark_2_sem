@@ -115,10 +115,10 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 	limit := parse.StringGetParameter("limit", ctx)
 	since := parse.StringGetParameter("since", ctx)
 	sortType := parse.StringGetParameter("sort", ctx)
-	desc, _ := parse.BoolGetParameter("desc", ctx)
+	desc := parse.StringGetParameter("desc", ctx)
 
 	sortDirection := "ASC"
-	if desc {
+	if desc == "true" {
 		sortDirection = "DESC"
 	}
 
@@ -127,6 +127,10 @@ func (h *Handlers) GetThreadPosts(ctx *fasthttp.RequestCtx) {
 	}
 
 	posts, err := h.ThreadRepo.GetThreadPosts(thread.Id, limit, since, sortType, sortDirection)
+	if err != nil {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "posts not found", ctx)
+		return
+	}
 
 	responseDelivery.SendResponse(fasthttp.StatusOK, posts, ctx)
 }
@@ -142,7 +146,7 @@ func (h *Handlers) UpdateThreadDetails(ctx *fasthttp.RequestCtx) {
 
 	thread, err := h.ThreadRepo.GetThreadBySlugOrID(slugOrID)
 	if err != nil {
-		responseDelivery.SendError(fasthttp.StatusNotFound, "Can't find user with id #42", ctx)
+		responseDelivery.SendError(fasthttp.StatusNotFound, "can't find user", ctx)
 		return
 	}
 
@@ -160,7 +164,7 @@ func (h *Handlers) UpdateThreadDetails(ctx *fasthttp.RequestCtx) {
 
 	updatedThread, err := h.ThreadRepo.UpdateThreadDetails(thread.Id, thread.Title, thread.Message)
 	if updatedThread == (models.Thread{}) {
-		responseDelivery.SendResponse(fasthttp.StatusNotFound, "Can't find user with id #42\n", ctx)
+		responseDelivery.SendResponse(fasthttp.StatusNotFound, "can't find user", ctx)
 		return
 	}
 

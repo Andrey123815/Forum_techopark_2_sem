@@ -6,7 +6,7 @@ import (
 )
 
 func BoolGetParameter(paramName string, ctx *fasthttp.RequestCtx) (bool, error) {
-	param := string(ctx.QueryArgs().Peek(paramName))
+	param := string(ctx.FormValue(paramName))
 	if param == "" {
 		return false, nil
 	}
@@ -19,7 +19,7 @@ func BoolGetParameter(paramName string, ctx *fasthttp.RequestCtx) (bool, error) 
 }
 
 func StringGetParameter(paramName string, ctx *fasthttp.RequestCtx) string {
-	param := string(ctx.QueryArgs().Peek(paramName))
+	param := string(ctx.FormValue(paramName))
 	return param
 }
 

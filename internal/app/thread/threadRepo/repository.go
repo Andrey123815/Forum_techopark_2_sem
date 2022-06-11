@@ -17,9 +17,7 @@ func CreateThreadRepository(db *pgx.ConnPool) *Repository {
 	return &Repository{Database: db}
 }
 
-const EMPTY_PARAMETER = -1
 const POST_PARAMS = `id, parent, author, message, "isEdited", forum, thread, created`
-const THREAD_PARAMS = `id, title, author, forum, message, votes, slug, created`
 
 func generateFlatSortQuery(limit, since, sortDirection string) string {
 	query := fmt.Sprintf(`SELECT %s FROM posts WHERE thread = $1`, POST_PARAMS)
@@ -132,7 +130,7 @@ func (repository *Repository) CreateNewPosts(newPosts []models.Post, thread mode
 
 		if singlePost.Parent != 0 {
 			var id int64
-			err := repository.Database.QueryRow(`SELECT id FROM posts WHERE thread = $1 AND id = $2;`, thread.Id, singlePost.Parent).Scan(&id)
+			err = repository.Database.QueryRow(`SELECT id FROM posts WHERE thread = $1 AND id = $2;`, thread.Id, singlePost.Parent).Scan(&id)
 			if err != nil {
 				return []models.Post{}, customErrors.AnotherThreadPost
 			}

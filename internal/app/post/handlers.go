@@ -24,8 +24,13 @@ func handleInternalServerError(err error, ctx *fasthttp.RequestCtx) bool {
 }
 
 func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
-	postID, _ := parse.Int64SlugParameter("id", ctx)
-	relatedOneString := string(ctx.QueryArgs().Peek("related"))
+	postID, err := parse.Int64SlugParameter("id", ctx)
+	if err != nil {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
+		return
+	}
+
+	relatedOneString := parse.StringGetParameter("related", ctx)
 	related := strings.Split(relatedOneString, ",")
 
 	postDetails, _ := h.PostRepo.GetPostDetails(postID, related)
@@ -38,10 +43,14 @@ func (h *Handlers) GetPostDetails(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *Handlers) ChangePostMessage(ctx *fasthttp.RequestCtx) {
-	postID, _ := parse.Int64SlugParameter("id", ctx)
+	postID, err := parse.Int64SlugParameter("id", ctx)
+	if err != nil {
+		responseDelivery.SendError(fasthttp.StatusNotFound, "", ctx)
+		return
+	}
 
 	newPost := models.Post{}
-	err := json.Unmarshal(ctx.PostBody(), &newPost)
+	err = json.Unmarshal(ctx.PostBody(), &newPost)
 	if handleInternalServerError(err, ctx) == true {
 		return
 	}

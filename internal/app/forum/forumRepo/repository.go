@@ -71,21 +71,21 @@ func (repository *Repository) GetAlreadyExistThread(slug string) (models.Thread,
 	return existThread, nil
 }
 
-func (repository *Repository) GetThreadsBySlug(forumSlug string, limit string, desc bool, since string) ([]models.Thread, error) {
+func (repository *Repository) GetThreadsBySlug(forumSlug, limit, desc, since string) ([]models.Thread, error) {
 	threads := make([]models.Thread, 0, 0)
 
 	query := `SELECT * FROM threads WHERE forum = $1`
 
 	if since != "" {
 		comparator := ">="
-		if desc == true {
+		if desc == "true" {
 			comparator = "<="
 		}
 		query += fmt.Sprintf(` AND created %s '%s'`, comparator, since)
 	}
 
 	sortDirection := "ASC"
-	if desc == true {
+	if desc == "true" {
 		sortDirection = "DESC"
 	}
 

@@ -106,9 +106,10 @@ func (h *Handlers) CreateNewThread(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetThreads(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
+
 	limit := parse.StringGetParameter("limit", ctx)
-	desc, err := parse.BoolGetParameter("desc", ctx)
-	since := string(ctx.QueryArgs().Peek("since"))
+	desc := parse.StringGetParameter("desc", ctx)
+	since := parse.StringGetParameter("since", ctx)
 
 	forum, err := h.ForumRepo.GetForumBySlug(slug)
 	if forum == (models.Forum{}) {
@@ -127,9 +128,10 @@ func (h *Handlers) GetThreads(ctx *fasthttp.RequestCtx) {
 
 func (h *Handlers) GetForumUsers(ctx *fasthttp.RequestCtx) {
 	slug := ctx.UserValue("slug").(string)
+
 	limit := parse.StringGetParameter("limit", ctx)
-	desc, err := parse.BoolGetParameter("desc", ctx)
-	since := string(ctx.QueryArgs().Peek("since"))
+	desc := parse.StringGetParameter("desc", ctx)
+	since := parse.StringGetParameter("since", ctx)
 
 	forum, err := h.ForumRepo.GetForumBySlug(slug)
 	if forum == (models.Forum{}) {
@@ -138,7 +140,7 @@ func (h *Handlers) GetForumUsers(ctx *fasthttp.RequestCtx) {
 	}
 
 	sortDirection := "ASC"
-	if desc {
+	if desc == "true" {
 		sortDirection = "DESC"
 	}
 
