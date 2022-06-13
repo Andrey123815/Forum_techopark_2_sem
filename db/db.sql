@@ -129,17 +129,9 @@ CREATE TRIGGER "create_thread"
 EXECUTE PROCEDURE create_thread();
 
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_users_nickname ON users ("nickname");
-CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users ("email");
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_forums_slug ON forums ("slug");
-
 CREATE INDEX IF NOT EXISTS idx_threads_slug ON threads ("slug");
 CREATE INDEX IF NOT EXISTS idx_threads_forum ON threads ("forum");
 
-CREATE INDEX IF NOT EXISTS idx_posts_thread ON posts ("thread");
 CREATE UNIQUE INDEX IF NOT EXISTS idx_posts_thread_path ON posts ("thread", "path");
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_votes_user_thread ON votes ("user", "thread");
 
 CREATE INDEX IF NOT EXISTS idx_forum_users_user_forum ON forum_users ("nickname", "forum");
